@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Town Hidden Object — Puzzle Adventure</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            background:
+                radial-gradient(ellipse 120% 80% at 50% 0%, rgba(212, 168, 83, 0.18) 0%, transparent 55%),
+                radial-gradient(ellipse 70% 50% at 100% 70%, rgba(107, 45, 60, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 45% at 0% 40%, rgba(74, 90, 120, 0.12) 0%, transparent 45%),
+                linear-gradient(165deg, #0a0e14 0%, #121a24 45%, #0c1018 100%);
+            color: #c9b896;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .texture {
+            position: fixed;
+            inset: 0;
+            background-image:
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .lamplight {
+            position: fixed;
+            width: 420px;
+            height: 420px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(245, 234, 213, 0.08) 0%, transparent 62%);
+            top: -8%;
+            left: 50%;
+            transform: translateX(-50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .corner-glow {
+            position: fixed;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(212, 168, 83, 0.12) 0%, transparent 70%);
+            bottom: 5%;
+            right: -3%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 640px;
+            width: 100%;
+            background: linear-gradient(160deg, rgba(22, 28, 38, 0.96) 0%, rgba(12, 16, 24, 0.98) 100%);
+            border: 1px solid rgba(212, 168, 83, 0.35);
+            border-radius: 8px;
+            padding: 44px 40px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            box-shadow:
+                0 0 0 1px rgba(245, 234, 213, 0.06) inset,
+                0 24px 64px rgba(0, 0, 0, 0.55),
+                0 0 80px rgba(107, 45, 60, 0.08);
+        }
+
+        .container::before {
+            content: "";
+            position: absolute;
+            inset: 12px;
+            border: 1px dashed rgba(212, 168, 83, 0.15);
+            border-radius: 4px;
+            pointer-events: none;
+        }
+
+        .inner {
+            position: relative;
+            z-index: 1;
+        }
+
+        .icon-wrap {
+            width: 108px;
+            height: 108px;
+            margin: 0 auto 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #2a2438 0%, #1a1522 55%, #0f0c14 100%);
+            border: 2px solid rgba(212, 168, 83, 0.45);
+            box-shadow: 0 0 0 4px rgba(12, 10, 18, 0.6), 0 12px 32px rgba(0, 0, 0, 0.45);
+        }
+
+        .icon-wrap svg {
+            width: 58px;
+            height: 58px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+        }
+
+        h1 {
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 6px;
+            color: #f5ead5;
+        }
+
+        h1 .gold {
+            color: #d4a853;
+            font-style: italic;
+            font-weight: 600;
+        }
+
+        .tagline {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #9a8b6e;
+            margin-bottom: 22px;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .chip {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 7px 12px;
+            border-radius: 2px;
+            background: rgba(107, 45, 60, 0.25);
+            color: #e8c4a8;
+            border: 1px solid rgba(212, 168, 83, 0.3);
+        }
+
+        .chip.outline {
+            background: rgba(74, 90, 120, 0.2);
+            color: #a8b4c8;
+            border-color: rgba(138, 155, 178, 0.35);
+        }
+
+        .lead {
+            text-align: left;
+            color: #b8a88a;
+            line-height: 1.78;
+            font-size: 1.02rem;
+            margin-bottom: 26px;
+        }
+
+        .lead strong {
+            color: #f5ead5;
+        }
+
+        .feature-list {
+            text-align: left;
+            margin-bottom: 26px;
+            padding: 20px 22px;
+            background: rgba(8, 10, 16, 0.65);
+            border-left: 3px solid #d4a853;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .feature-list h2 {
+            font-family: Georgia, serif;
+            font-size: 1rem;
+            color: #d4a853;
+            margin-bottom: 14px;
+            font-weight: 600;
+        }
+
+        .feature-list ul {
+            list-style: none;
+        }
+
+        .feature-list li {
+            position: relative;
+            padding-left: 22px;
+            margin-bottom: 10px;
+            font-size: 0.92rem;
+            color: #a89b82;
+            line-height: 1.55;
+        }
+
+        .feature-list li::before {
+            content: "◇";
+            position: absolute;
+            left: 0;
+            color: #6b2d3c;
+            font-size: 0.75rem;
+            top: 2px;
+        }
+
+        .cta {
+            display: inline-block;
+            margin-top: 6px;
+            padding: 15px 34px;
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: #1a1522;
+            text-decoration: none;
+            border-radius: 4px;
+            background: linear-gradient(180deg, #e8c878 0%, #c4943a 100%);
+            box-shadow: 0 6px 20px rgba(212, 168, 83, 0.35);
+            border: 1px solid rgba(245, 234, 213, 0.35);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(212, 168, 83, 0.45);
+        }
+
+        .foot {
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(212, 168, 83, 0.15);
+            font-size: 0.86rem;
+            color: #7a6f5a;
+        }
+
+        .foot a {
+            color: #d4a853;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .foot a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 560px) {
+            .container {
+                padding: 32px 22px;
+            }
+            h1 {
+                font-size: 1.65rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="texture" aria-hidden="true"></div>
+    <div class="lamplight" aria-hidden="true"></div>
+    <div class="corner-glow" aria-hidden="true"></div>
+
+    <div class="container">
+        <div class="inner">
+            <div class="icon-wrap" aria-hidden="true">
+                <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <circle cx="28" cy="28" r="16" fill="none" stroke="#d4a853" stroke-width="3"/>
+                    <line x1="40" y1="40" x2="56" y2="56" stroke="#8a7550" stroke-width="5" stroke-linecap="round"/>
+                    <ellipse cx="28" cy="28" rx="6" ry="6" fill="rgba(245,234,213,0.12)"/>
+                </svg>
+            </div>
+
+            <h1>Home Town <span class="gold">Hidden Object</span></h1>
+            <p class="tagline">Puzzle adventure</p>
+
+            <div class="chips">
+                <span class="chip">Free</span>
+                <span class="chip outline">iOS 15+</span>
+                <span class="chip">iPad &amp; iPhone</span>
+                <span class="chip outline">Ages 4+</span>
+            </div>
+
+            <p class="lead">
+                <strong>Welcome to a quiet town full of secrets.</strong> Stroll through cozy homes, antique shops, sunlit gardens, and lively squares—each scene is hand-crafted so every corner can hide a clue. Find listed objects, sharpen your attention, and unwind with smooth, relaxed pacing between puzzles.
+            </p>
+
+            <div class="feature-list">
+                <h2>What you will discover</h2>
+                <ul>
+                    <li>Rich, detailed environments built for close looking and calm focus.</li>
+                    <li>Hundreds of hidden items across levels that reward patience and a sharp eye.</li>
+                    <li>Gentle difficulty curve: easy to start, satisfying to master.</li>
+                    <li>Hints when you need a nudge—never forced, always optional.</li>
+                    <li>New content over time so the town keeps revealing fresh corners to explore.</li>
+                </ul>
+            </div>
+
+            <p class="lead" style="margin-bottom: 18px;">
+                Train observation, enjoy a peaceful hidden-object flow, and peel back the story the streets whisper only to those who look twice.
+            </p>
+
+            <a href="https://apps.apple.com/us/app/home-town-hidden-object/id1028809568?uo=4" class="cta" target="_blank" rel="noopener noreferrer">Download on the App Store</a>
+
+            <div class="foot">
+                <a href="privacy.html">Privacy overview</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
